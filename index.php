@@ -12,7 +12,7 @@ $channel_secret = 'a812f47e56a519ed75ee4f47cb924f19';
 // Get message from Line API 
 $content = file_get_contents('php://input'); 
 $events = json_decode($content, true); 
- 
+ error_log($events);
 if (!is_null($events['events'])) {     // Loop through each event     
 foreach ($events['events'] as $event) {         //  Line API send a lot of event type, we interested in message only.         
 if ($event['type'] == 'message') {                
@@ -32,5 +32,5 @@ case 'text':                       // Get replyToken
         } 
     } 
 } 
-error_log($message);
+
 echo 'OK';
