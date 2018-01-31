@@ -1,7 +1,7 @@
 <?php 
 require_once('./vendor/autoload.php'); 
  	
-// Namespace 
+// Namespace y
 use \LINE\LINEBot\HTTPClient\CurlHTTPClient; 
 use \LINE\LINEBot; 
 use \LINE\LINEBot\MessageBuilder\TextMessageBuilder; 
@@ -31,4 +31,3 @@ case 'text':                       // Get replyToken
     } 
 } 
 echo 'OK';
-?>
