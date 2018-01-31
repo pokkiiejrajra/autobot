@@ -19,7 +19,7 @@ if ($event['type'] == 'message') {
 switch($event['message']['type']) {                  
 case 'text':                       // Get replyToken                      
  $replyToken = $event['replyToken']; 
- error_log($message);
+ 
                       // Reply message                       
  $respMessage = 'Hello, your message is '. $event['message']['text']; 
  
@@ -32,4 +32,5 @@ case 'text':                       // Get replyToken
         } 
     } 
 } 
+error_log($message);
 echo 'OK';
