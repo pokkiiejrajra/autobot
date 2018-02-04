@@ -9,81 +9,51 @@ $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient($_ENV["LINEBOT_ACCESS_
 $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => $_ENV["LINEBOT_CHANNEL_SECRET"]]);
 $signature = $_SERVER['HTTP_' . \LINE\LINEBot\Constant\HTTPHeader::LINE_SIGNATURE];
 try {
-    $events = $bot->parseEventRequest(file_get_contents('php://input'), $signature);
-} catch(\LINE\LINEBot\Exception\InvalidSignatureException $e) {
-    error_log('parseEventRequest failed. InvalidSignatureException => '.var_export($e, true));
-} catch(\LINE\LINEBot\Exception\UnknownEventTypeException $e) {
-    error_log('parseEventRequest failed. UnknownEventTypeException => '.var_export($e, true));
-} catch(\LINE\LINEBot\Exception\UnknownMessageTypeException $e) {
-    error_log('parseEventRequest failed. UnknownMessageTypeException => '.var_export($e, true));
-} catch(\LINE\LINEBot\Exception\InvalidEventRequestException $e) {
-    error_log('parseEventRequest failed. InvalidEventRequestException => '.var_export($e, true));
-}
-foreach ($events as $event) {
-    // Postback Event
-    if (($event instanceof \LINE\LINEBot\Event\PostbackEvent)) {
-        $logger->info('Postback message has come');
-        continue;
-    }
-    // Location Event
-    if  ($event instanceof LINE\LINEBot\Event\MessageEvent\LocationMessage) {
-        $logger->info("location -> ".$event->getLatitude().",".$event->getLongitude());
-        continue;
-    }
-    // Message Event = TextMessage
-    if (($event instanceof \LINE\LINEBot\Event\MessageEvent\TextMessage)) {
-        $messageText=strtolower(trim($event->getText()));
-        switch ($messageText) {
-        case "text" : 
-            $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("text message");
-            break;
-        case "location" :
-            $outputText = new \LINE\LINEBot\MessageBuilder\LocationMessageBuilder("Eiffel Tower", "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France", 48.858328, 2.294750);
-            break;
-        case "button" :
-            $actions = array (
-                // general message action
-                New \LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder("button 1", "text 1"),
-                // URL type action
-                New \LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder("Google", "http://www.google.com"),
-                // The following two are interactive actions
-                New \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("next page", "page=3"),
-                New \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("Previous", "page=1")
-            );
-            $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
-            $button = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder("button text", "description", $img_url, $actions);
-            $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("this message to use the phone to look to the Oh", $button);
-            break;
-        case "carousel" :
-            $columns = array();
-            $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
-            for($i=0;$i<5;$i++) {
-                $actions = array(
-                    new \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("Add to Card","action=carousel&button=".$i),
-                    new \LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder("View","http://www.google.com")
-                );
-                $column = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder("Title", "description", $img_url , $actions);
-                $columns[] = $column;
-            }
-            $carousel = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder($columns);
-            $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("Carousel Demo", $carousel);
-            break;  
-        case "image" :
-            $img_url = "https://cdn.shopify.com/s/files/1/0379/7669/products/sampleset2_1024x1024.JPG?v=1458740363";
-            $outputText = new LINE\LINEBot\MessageBuilder\ImageMessageBuilder($img_url, $img_url);
-            break;  
-        case "confirm" :
-            $actions = array (
-                New \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("yes", "ans=y"),
-                New \LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder("no", "ans=N")
-            );
-            $button = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder("problem", $actions);
-            $outputText = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder("this message to use the phone to look to the Oh", $button);
-            break;
-        default :
-            $outputText = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder("demo command: text, location, button, confirm to test message template");    
-            break;
+<?php
+
+require_once('./vendor/autoload.php');
+
+// Namespace
+use \LINE\LINEBot\HTTPClient\CurlHTTPClient;
+use \LINE\LINEBot;
+use \LINE\LINEBot\MessageBuilder\TextMessageBuilder;
+
+// Token
+$channel_token = 'CRzQgIiN8vaAyB3HqUqg9Zt5h6r5kyPjUyAbri9sZVhTYtpSdIryoutQ74v3aubtYfSOe5OmDyd6zbI9T1bIpcTAbwHHK+2T1O93tVQowCYFfgT5AyO+o66nG2izp2dCyq76X+j0G+TVR6bPzzLygAdB04t89/1O/w1cDnyilFU=';
+$channel_secret = 'a812f47e56a519ed75ee4f47cb924f19';
+
+// Get message from Line API
+$content = file_get_contents('php://input');
+$events = json_decode($content, true);
+
+if (!is_null($events['events'])) {
+
+	// Loop through each event
+	foreach ($events['events'] as $event) {
+    
+        // Get replyToken
+        $replyToken = $event['replyToken'];
+        $ask = $event['message']['text'];
+
+        switch(strtolower($ask)) {
+            case 'm':
+                $respMessage = 'What sup man. Go away!';
+                break;
+            case 'f':
+                $respMessage = 'Love you lady.';
+                break;
+            default:
+                $respMessage = 'What is your sex? M or F';
+                break;    
         }
-        $response = $bot->replyMessage($event->getReplyToken(), $outputText);
-    }
+
+        $httpClient = new CurlHTTPClient($channel_token);
+        $bot = new LINEBot($httpClient, array('channelSecret' => $channel_secret));
+
+        $textMessageBuilder = new TextMessageBuilder($respMessage);
+        $response = $bot->replyMessage($replyToken, $textMessageBuilder);
+        
+	}
 }
+
+echo "OK";
