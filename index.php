@@ -1,12 +1,8 @@
-<?php 
-require_once('./vendor/autoload.php'); 
-    
-// Namespace y
+<?php
+require_once '../vendor/autoload.php';
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\FirePHPHandler;
- 
- 
 $logger = new Logger('LineBot');
 $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient($_ENV["LINEBOT_ACCESS_TOKEN"]);
@@ -90,4 +86,4 @@ foreach ($events as $event) {
         }
         $response = $bot->replyMessage($event->getReplyToken(), $outputText);
     }
-}  
+}
